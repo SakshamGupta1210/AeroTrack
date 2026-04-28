@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Airport Luggage Tracking & Crowd Management</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="navbar">
+      <a href="#" class="logo">AeroTrack</a>
+      <nav>
+        <ul id="navMenu">
+          <li><a href="#" onclick="navigateTo('landing')" class="nav-link active">Home</a></li>
+          <li><a href="#" onclick="navigateTo('dashboard')" class="nav-link">Dashboard</a></li>
+          <li><a href="#" onclick="navigateTo('belt')" class="nav-link">Belt Status</a></li>
+          <li><a href="#" onclick="navigateTo('admin')" class="nav-link">Admin</a></li>
+        </ul>
+      </nav>
+      <button class="logout-btn" onclick="toggleLoginModal()" id="loginBtn">Login</button>
+    </div>
+  </header>
+
+  <!-- ===== LANDING PAGE ===== -->
+  <div class="page active" id="landing">
+    <div class="container">
+      <div class="hero">
+        <div class="hero-content">
+          <h1>Smart Luggage Tracking – Less Crowd, Faster Pickup</h1>
+          <p>Experience the future of airport operations with real-time baggage tracking, AI-powered crowd management, and instant delay alerts. Reduce wait times, optimize belt utilization, and enhance passenger satisfaction.</p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="navigateTo('dashboard')">Track My Bag</button>
+            <button class="btn btn-secondary" onclick="showNotification('Luggage Registered', '✅ Your bag has been registered with QR Code: BAG-AI-2026')">Register Luggage</button>
+            <button class="btn btn-tertiary" onclick="startDemo()">View Demo</button>
+          </div>
+        </div>
+        <div class="hero-animation">
+          <div class="luggage-icon">🧳</div>
+          <div class="luggage-icon">🧳</div>
+          <div class="luggage-icon">🧳</div>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>QR Code Tracking</h3>
+          <p>Instantly track your luggage using QR codes. Know exactly where your baggage is at every step.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Live Belt Updates</h3>
+          <p>Real-time baggage belt status. Get notified when your luggage arrives at your designated belt section.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Crowd Detection</h3>
+          <p>AI-powered crowd detection redirects passengers to less crowded belt sections for optimal experience.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⏰</div>
+          <h3>Delay Alerts</h3>
+          <p>Instant notifications for delayed luggage with estimated wait times and assistance options.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI Optimization</h3>
+          <p>Machine learning algorithms optimize baggage routing and predict crowd patterns in real-time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3>Secure & Private</h3>
+          <p>Enterprise-grade security ensures your luggage data is protected with end-to-end encryption.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD PAGE ===== -->
+  <div class="page" id="dashboard">
+    <div class="container">
+      <div class="dashboard-grid">
+        <!-- LEFT PANEL: LOGIN & INPUT -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Login</h2>
+            <p>Enter your flight and baggage details</p>
+          </div>
+
+          <div class="form-group">
+            <label for="flightNumber">Flight Number</label>
+            <input type="text" id="flightNumber" placeholder="e.g., AI-202" value="AI-202">
+          </div>
+
+          <div class="form-group">
+            <label for="bagId">Baggage Tag / QR Code</label>
+            <input type="text" id="bagId" placeholder="e.g., BAG-AI-2026" value="BAG-AI-2026">
+          </div>
+
+          <div class="form-group">
+            <label for="passengerName">Passenger Name</label>
+            <input type="text" id="passengerName" placeholder="Your full name" value="Saksham Kumar">
+          </div>
+
+          <div class="form-group">
+            <label for="destination">Destination</label>
+            <select id="destination">
+              <option>New York (JFK)</option>
+              <option>Los Angeles (LAX)</option>
+              <option>Chicago (ORD)</option>
+              <option>London (LHR)</option>
+              <option>Tokyo (NRT)</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" onclick="startTracking()" style="width: 100%;">Start Tracking</button>
+          <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary); font-size: 0.85rem;">Demo uses dummy data for simulation</p>
+        </div>
+
+        <!-- RIGHT PANEL: TRACKING STATUS -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Baggage Status</h2>
+            <p id="statusSubtitle" style="display: none;">Real-time tracking information</p>
+          </div>
+
+          <div id="trackingInfo" style="display: none; position: relative; z-index: 2;">
+            <div style="margin-bottom: 1.5rem;">
+              <strong style="color: var(--primary-blue);">Flight:</strong>
+              <span id="displayFlight" style="margin-left: 0.5rem;"></span>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <strong style="color: var(--primary-blue);">Baggage ID:</strong>
+              <span id="displayBag" style="margin-left: 0.5rem;"></span>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <strong style="color: var(--primary-blue);">Passenger:</strong>
+              <span id="displayPassenger" style="margin-left: 0.5rem;"></span>
+            </div>
+
+            <!-- PROGRESS BAR -->
+            <div class="progress-container">
+              <div class="progress-label">
+                <span>Luggage Journey</span>
+                <span id="progressPercent">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+            </div>
+
+            <!-- PROGRESS STEPS -->
+            <div class="progress-steps">
+              <div class="step active" id="step-0">
+                <div class="step-circle">✓</div>
+                <div class="step-label">Checked In</div>
+              </div>
+              <div class="step" id="step-1">
+                <div class="step-circle">2</div>
+                <div class="step-label">Security</div>
+              </div>
+              <div class="step" id="step-2">
+                <div class="step-circle">3</div>
+                <div class="step-label">In Transit</div>
+              </div>
+              <div class="step" id="step-3">
+                <div class="step-circle">4</div>
+                <div class="step-label">On Belt</div>
+              </div>
+              <div class="step" id="step-4">
+                <div class="step-circle">5</div>
+                <div class="step-label">Ready</div>
+              </div>
+            </div>
+
+            <!-- TIMER -->
+            <div style="margin-top: 2rem;">
+              <div class="timer-label">Estimated Arrival</div>
+              <div class="timer-display" id="timerDisplay">05:47</div>
+            </div>
+
+            <!-- BELT INFO -->
+            <div style="margin-top: 2rem; background: rgba(0, 212, 255, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-blue); position: relative; z-index: 2;">
+              <strong style="color: var(--primary-blue);">Belt Section:</strong>
+              <span id="beltSection" style="margin-left: 0.5rem; font-size: 1.2rem;">B</span>
+            </div>
+          </div>
+
+          <div id="notTrackingText" style="text-align: center; padding: 2rem 0; color: var(--text-secondary);">
+            <p style="position: relative; z-index: 2;">Enter your flight and baggage details above to start tracking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BELT SECTION PAGE ===== -->
+  <div class="page" id="belt">
+    <div class="container" style="padding: 2rem 0;">
+      <h1 style="margin-bottom: 2rem; background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Baggage Belt Status</h1>
+
+      <div class="belt-grid">
+        <div class="belt-card">
+          <div class="belt-label">Section A</div>
+          <div class="belt-visualization">
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+          </div>
+          <div class="crowd-status">
+            <div class="crowd-indicator low"></div>
+            <span style="position: relative; z-index: 2;">Low Crowd (24 passengers)</span>
+          </div>
+        </div>
+
+        <div class="belt-card">
+          <div class="belt-label">Section B</div>
+          <div class="belt-visualization">
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+          </div>
+          <div class="crowd-status">
+            <div class="crowd-indicator medium"></div>
+            <span style="position: relative; z-index: 2;">Medium Crowd (48 passengers)</span>
+          </div>
+        </div>
+
+        <div class="belt-card">
+          <div class="belt-label">Section C</div>
+          <div class="belt-visualization">
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+          </div>
+          <div class="crowd-status">
+            <div class="crowd-indicator high"></div>
+            <span style="position: relative; z-index: 2;">High Crowd (72 passengers)</span>
+          </div>
+        </div>
+
+        <div class="belt-card">
+          <div class="belt-label">Section D</div>
+          <div class="belt-visualization">
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+            <div class="luggage-item">🧳</div>
+          </div>
+          <div class="crowd-status">
+            <div class="crowd-indicator low"></div>
+            <span style="position: relative; z-index: 2;">Low Crowd (18 passengers)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI SUGGESTION -->
+      <div class="ai-suggestion">
+        <div class="ai-title">🤖 AI Smart Recommendation</div>
+        <div class="ai-message">
+          "Based on current crowd patterns and your flight arrival time, we recommend moving to <strong>Section D</strong> for a faster pickup. It has 60% less crowd than Section C and your luggage will arrive there in approximately 4 minutes."
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 3rem;">
+        <div class="card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">245</div>
+            <div class="stat-label">Active Bags on Belts</div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">12 min</div>
+            <div class="stat-label">Avg. Pickup Time</div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">98.7%</div>
+            <div class="stat-label">On-Time Rate</div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Delayed Bags</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DELAY ALERT PAGE ===== -->
+  <div class="page" id="alert">
+    <div class="alert-container">
+      <div class="alert-box">
+        <div class="alert-icon">⚠️</div>
+        <h1>Baggage Delay Alert</h1>
+        <p>We've detected a slight delay with your luggage. Don't worry, our team is on it!</p>
+
+        <div class="alert-details">
+          <div class="detail-row">
+            <strong>Baggage ID:</strong>
+            <span id="alertBagId">BAG-AI-2026</span>
+          </div>
+          <div class="detail-row">
+            <strong>Current Status:</strong>
+            <span style="color: var(--warning);">🔄 In Transit (Delayed)</span>
+          </div>
+          <div class="detail-row">
+            <strong>Expected Arrival:</strong>
+            <span id="alertArrival">12:45 PM</span>
+          </div>
+          <div class="detail-row">
+            <strong>Delay Duration:</strong>
+            <span>+8 minutes</span>
+          </div>
+          <div class="detail-row">
+            <strong>Reason:</strong>
+            <span style="font-size: 0.9rem;">Security screening backlog at Conveyor 3</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(0, 212, 255, 0.1); border-radius: 8px; position: relative; z-index: 2;">
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">
+            💡 <strong>Tip:</strong> Check out Section C. Your luggage should arrive there in approximately 4 minutes.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; position: relative; z-index: 2;">
+          <button class="btn btn-primary" onclick="showNotification('Help Requested', '📞 Our support team has been notified. You will receive assistance shortly.')">Request Help</button>
+          <button class="btn btn-secondary" onclick="navigateTo('belt')">View Belt Status</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN DASHBOARD ===== -->
+  <div class="page" id="admin">
+    <div class="container" style="padding: 2rem 0;">
+      <h1 style="margin-bottom: 1rem; background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Admin Dashboard</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 2rem;">Real-time airport operations monitoring</p>
+
+      <!-- STATS -->
+      <div class="admin-grid">
+        <div class="stat-card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">4,237</div>
+            <div class="stat-label">Bags Today</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">245</div>
+            <div class="stat-label">Active Bags</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Delayed Bags</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div style="position: relative; z-index: 2;">
+            <div class="stat-number">98.7%</div>
+            <div class="stat-label">On-Time Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BELT UTILIZATION CHART -->
+      <div class="chart-container">
+        <div class="chart-title">📊 Belt Utilization (%)</div>
+
+        <div class="chart-bar">
+          <div class="bar-label">
+            <span>Section A</span>
+            <span>34%</span>
+          </div>
+          <div class="bar-background">
+            <div class="bar-fill" style="width: 34%;"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar">
+          <div class="bar-label">
+            <span>Section B</span>
+            <span>68%</span>
+          </div>
+          <div class="bar-background">
+            <div class="bar-fill" style="width: 68%;"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar">
+          <div class="bar-label">
+            <span>Section C</span>
+            <span>89%</span>
+          </div>
+          <div class="bar-background">
+            <div class="bar-fill" style="width: 89%;"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar">
+          <div class="bar-label">
+            <span>Section D</span>
+            <span>42%</span>
+          </div>
+          <div class="bar-background">
+            <div class="bar-fill" style="width: 42%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CROWD HEATMAP -->
+      <div class="chart-container">
+        <div class="chart-title">👥 Passenger Crowd Heatmap (Current Hour)</div>
+        <div class="heatmap-grid">
+          <div class="heatmap-cell heat-medium">Belt A<br>48%</div>
+          <div class="heatmap-cell heat-high">Belt B<br>78%</div>
+          <div class="heatmap-cell heat-high">Belt C<br>92%</div>
+          <div class="heatmap-cell heat-low">Belt D<br>31%</div>
+          <div class="heatmap-cell heat-low">Terminal 1<br>22%</div>
+          <div class="heatmap-cell heat-medium">Terminal 2<br>55%</div>
+          <div class="heatmap-cell heat-high">Terminal 3<br>84%</div>
+          <div class="heatmap-cell heat-medium">Lounge<br>42%</div>
+        </div>
+      </div>
+
+      <!-- DELAY MANAGEMENT -->
+      <div class="chart-container">
+        <div class="chart-title">⏱️ Delay Management</div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; position: relative; z-index: 2;">
+          <div style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 1rem; border-radius: 8px;">
+            <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">BAG-XY-1842</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Delayed 12 minutes</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">🔍 Security screening backlog</div>
+          </div>
+
+          <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning); padding: 1rem; border-radius: 8px;">
+            <div style="color: var(--warning); font-weight: 600; margin-bottom: 0.5rem;">BAG-ZL-5693</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Delayed 5 minutes</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">📦 Conveyor maintenance</div>
+          </div>
+
+          <div style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 1rem; border-radius: 8px;">
+            <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">BAG-MN-3021</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Delayed 18 minutes</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">❌ Lost baggage investigation</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE METRICS -->
+      <div class="chart-container">
+        <div class="chart-title">📈 Performance Metrics (Last 7 Days)</div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; position: relative; z-index: 2;">
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--success); margin-bottom: 0.5rem;">98.7%</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">On-Time Delivery</div>
+          </div>
+
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 0.5rem;">11.2 min</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Avg. Pickup Time</div>
+          </div>
+
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--neon-green); margin-bottom: 0.5rem;">142</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Successful Redirects</div>
+          </div>
+
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--warning); margin-bottom: 0.5rem;">0.3%</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Lost Baggage Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="toggleLoginModal()">✕</button>
+      <div class="modal-header">
+        <h2>Login to AeroTrack</h2>
+      </div>
+      <div class="modal-body">
+        <p>This is a demo system. Use any credentials to access the system.</p>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="demoLogin()" style="width: 100%; margin-top: 1rem;">Login</button>
+    </div>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Processing your baggage...</div>
+  </div>
+
+  <!-- NOTIFICATION -->
+  <div id="notification" class="notification" style="display: none;">
+    <div class="notification-icon" id="notifIcon">📦</div>
+    <div class="notification-title" id="notifTitle">Notification</div>
+    <div class="notification-message" id="notifMessage">Your message here</div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
